@@ -12,27 +12,33 @@ clientSocket = socket(AF_INET, SOCK_DGRAM)
 
 def send_message(string):
     clientSocket.sendto(string.encode(),(serverName, serverPort))
+def closeConnection():
+    global clientSocket
+    message='Unsubscribe'
+    clientSocket.sendto(message.encode(),(serverName, serverPort))
+    clientSocket.close()
 
-username = input("Username: ")
-password = input("Password: ")
-msg = username + ' ' + password
-print('sending: '+msg)
+msg = input("Subscribe: ")
+
+# username = input("Username: ")
+# password = input("Password: ")
+# msg = username + ' ' + password
+
 send_message(msg)
-
 
 #wait for the reply from the server
 receivedMessage, serverAddress = clientSocket.recvfrom(2048)
+if (receivedMessage.decode()=='Login successfull'):
+    print("done")
+    closeConnection()
 
-if (receivedMessage.decode()=='login successfull'):
+if (receivedMessage.decode()=='Subscription successfull'):
     #Wait for 10 back to back messages from server
     for i in range(10):
         receivedMessage, serverAddress = clientSocket.recvfrom(2048)
         print(receivedMessage.decode())
 #prepare to exit. Send Unsubscribe message to server
-else if():
-else if():
+
 else :
-    message='Unsubscribe'
-    clientSocket.sendto(message.encode(),(serverName, serverPort))
-    clientSocket.close()
+    closeConnection()
 # Close the socket
