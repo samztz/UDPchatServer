@@ -10,19 +10,29 @@ serverPort = int(sys.argv[2])
 
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 
-message = input("Please type Subscribe\n")
+def send_message(string):
+    clientSocket.sendto(string.encode(),(serverName, serverPort))
 
-clientSocket.sendto(message.encode(),(serverName, serverPort))
+username = input("Username: ")
+password = input("Password: ")
+msg = username + ' ' + password
+print('sending: '+msg)
+send_message(msg)
+
+
 #wait for the reply from the server
 receivedMessage, serverAddress = clientSocket.recvfrom(2048)
 
-if (receivedMessage.decode()=='Subscription successfull'):
+if (receivedMessage.decode()=='login successfull'):
     #Wait for 10 back to back messages from server
     for i in range(10):
         receivedMessage, serverAddress = clientSocket.recvfrom(2048)
         print(receivedMessage.decode())
 #prepare to exit. Send Unsubscribe message to server
-message='Unsubscribe'
-clientSocket.sendto(message.encode(),(serverName, serverPort))
-clientSocket.close()
+else if():
+else if():
+else :
+    message='Unsubscribe'
+    clientSocket.sendto(message.encode(),(serverName, serverPort))
+    clientSocket.close()
 # Close the socket

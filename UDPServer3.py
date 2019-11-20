@@ -6,6 +6,7 @@ from socket import *
 import threading
 import time
 import datetime as dt
+from login import authentication
 
 #Server will run on this port
 serverPort = 12000
@@ -16,6 +17,8 @@ clients=[]
 timeout=False
 UPDATE_INTERVAL=2;
 
+def send_message(string,address):
+    clientSocket.sendto(string.encode(),address)
 
 def recv_handler():
     global t_lock
@@ -25,14 +28,30 @@ def recv_handler():
     print('Server is ready for service')
     while(1):
 
-        message, clientAddress = serverSocket.recvfrom(2048)
+        inputmsg, clientAddress = serverSocket.recvfrom(2048)
         #received data from the client, now we know who we are talking with
-        message = message.decode()
+        inputmsg = inputmsg.decode()
+        print('recieving: '+inputmsg)
+        inputlist = []
+        inputlist = inputmsg.split('|')
         #get lock as we might me accessing some shared data structures
+        command = inputlist[0]
+        message = inputlist[1]
+
         with t_lock:
             currtime = dt.datetime.now()
             date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
             print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
+            if (command == 'login'):
+                # TODO block list
+
+                # TODO authentication
+                if (authentication(message)):
+                    clients.append(clientAddress)
+                    serverMessage="Subscription successfull"
+                else:
+                    serverMessage="Invalid username or password"
+
             if(message == 'Subscribe'):
                 #store client information (IP and Port No) in list
                 clients.append(clientAddress)
