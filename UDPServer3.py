@@ -80,17 +80,13 @@ def recv_handler():
                 date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
                 print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
 
-                if(message == 'Subscribe'):
-                    #store client information (IP and Port No) in list
-                    clients.append(clientAddress)
-                    serverMessage="Subscription successfull"
-                elif(message=='Unsubscribe'):
+                if(message=='logout'):
                     #check if client already subscribed or not
                     if(clientAddress in clients):
                         clients.remove(clientAddress)
-                        serverMessage="Subscription removed"
+                        serverMessage="Logout successfully"
                     else:
-                        serverMessage="You are not currently subscribed"
+                        serverMessage="Already logout"
                 else:
                     serverMessage="Unknown command, send Subscribe or Unsubscribe only"
                 #send message to the client

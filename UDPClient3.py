@@ -17,7 +17,6 @@ def send_message(string):
 
 def closeConnection():
     global clientSocket
-    clientSocke
     message='logout'
     clientSocket.sendto(message.encode(),(serverName, serverPort))
     clientSocket.close()
@@ -31,19 +30,25 @@ def gatherLogininfo():
     return username + ' ' + password
 # msg = input("Subscribe: ")
 def handleInput():
-    print("implement me after...")
-    closeConnection()
+    global receiveMassage
+    global serverAddress
+    while(1):
+
+def recieving():
+    global receiveMassage
+    global serverAddress
+    #wait for the reply from the server
+    receivedMessage, serverAddress = clientSocket.recvfrom(2048)
+    receivedMessage = receivedMessage.decode()
+
+    # FIXME debugging ============
+    print('Recieved: '+ receivedMessage)
+    # ======================
 
 msg = gatherLogininfo()
 send_message(msg)
 
-#wait for the reply from the server
-receivedMessage, serverAddress = clientSocket.recvfrom(2048)
-receivedMessage = receivedMessage.decode()
-
-# FIXME debugging ============
-print('Recieved: '+ receivedMessage)
-# ======================
+# main loop
 while(1):
     if (receivedMessage =='Login successfull'):
         break;
