@@ -32,29 +32,44 @@ def recv_handler():
         #received data from the client, now we know who we are talking with
         message = message.decode()
 
-
-        with t_lock:
-            currtime = dt.datetime.now()
-            date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
-            print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
-
-            if(message == 'Subscribe'):
-                #store client information (IP and Port No) in list
-                clients.append(clientAddress)
-                serverMessage="Subscription successfull"
-            elif(message=='Unsubscribe'):
-                #check if client already subscribed or not
-                if(clientAddress in clients):
-                    clients.remove(clientAddress)
-                    serverMessage="Subscription removed"
+        # login authentication
+        if clientAddress not in clients:
+            with t_lock:
+                # TODO black list
+                # authentication
+                print(message)
+                if authentication(message):
+                    clients.append(clientAddress)
+                    send_message("Login successfull",clientAddress)
                 else:
-                    serverMessage="You are not currently subscribed"
-            else:
-                serverMessage="Unknown command, send Subscribe or Unsubscribe only"
-            #send message to the client
-            serverSocket.sendto(serverMessage.encode(), clientAddress)
-            #notify the thread waiting
-            t_lock.notify()
+                    send_message("Login failed",clientAddress)
+                    t_lock.notify()
+
+        # already login
+        else :
+            #get lock as we might me accessing some shared data structures
+            with t_lock:
+                currtime = dt.datetime.now()
+                date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
+                print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
+
+                if(message == 'Subscribe'):
+                    #store client information (IP and Port No) in list
+                    clients.append(clientAddress)
+                    serverMessage="Subscription successfull"
+                elif(message=='Unsubscribe'):
+                    #check if client already subscribed or not
+                    if(clientAddress in clients):
+                        clients.remove(clientAddress)
+                        serverMessage="Subscription removed"
+                    else:
+                        serverMessage="You are not currently subscribed"
+                else:
+                    serverMessage="Unknown command, send Subscribe or Unsubscribe only"
+                #send message to the client
+                serverSocket.sendto(serverMessage.encode(), clientAddress)
+                #notify the thread waiting
+                t_lock.notify()
 
 
 def send_handler():

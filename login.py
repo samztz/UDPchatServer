@@ -15,3 +15,8 @@ def authentication(info):
             break
     f.close()
     return False
+
+# if (authentication('sam ztz')):
+#     print('pass test')
+# else :
+#     print('fail test')
