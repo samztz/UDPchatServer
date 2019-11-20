@@ -6,19 +6,48 @@ from socket import *
 import threading
 import time
 import datetime as dt
+import sys
+
 from login import authentication
 
+serverPort = int(sys.argv[1])
+block_duration = sys.argv[2]
+timeout = sys.argv[3]
+
 #Server will run on this port
-serverPort = 12000
+
 t_lock=threading.Condition()
 #will store clients info in this list
 clients=[]
+blacklist=[]
 # would communicate with clients after every second
 timeout=False
 UPDATE_INTERVAL=2;
 
 def send_message(string,address):
     clientSocket.sendto(string.encode(),address)
+
+def handleValidInput():
+
+    #get lock as we might me accessing some shared data structures
+    currtime = dt.datetime.now()
+    date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
+    print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
+
+    if(message == 'Subscribe'):
+        #store client information (IP and Port No) in list
+        clients.append(clientAddress)
+        serverMessage="Subscription successfull"
+    elif(message=='Unsubscribe'):
+        #check if client already subscribed or not
+        if(clientAddress in clients):
+            clients.remove(clientAddress)
+            serverMessage="Subscription removed"
+        else:
+            serverMessage="You are not currently subscribed"
+    else:
+        serverMessage="Unknown command, send Subscribe or Unsubscribe only"
+    #send message to the client
 
 def recv_handler():
     global t_lock
@@ -31,24 +60,22 @@ def recv_handler():
         message, clientAddress = serverSocket.recvfrom(2048)
         #received data from the client, now we know who we are talking with
         message = message.decode()
-
-        # login authentication
-        if clientAddress not in clients:
-            with t_lock:
-                # TODO black list
-                # authentication
-                print(message)
-                if authentication(message):
-                    clients.append(clientAddress)
-                    send_message("Login successfull",clientAddress)
-                else:
-                    send_message("Login failed",clientAddress)
-                    t_lock.notify()
-
-        # already login
-        else :
-            #get lock as we might me accessing some shared data structures
-            with t_lock:
+        
+        with t_lock:
+            # login authentication
+            if (clientAddress not in clients):
+                    # TODO black list
+                    # authentication
+                    print(message)
+                    if authentication(message):
+                        clients.append(clientAddress)
+                        send_message("Login successfull",clientAddress)
+                    else:
+                        send_message("Login~ failed",clientAddress)
+                        t_lock.notify()
+            # already login
+            else :
+                #get lock as we might me accessing some shared data structures
                 currtime = dt.datetime.now()
                 date_time = currtime.strftime("%d/%m/%Y, %H:%M:%S")
                 print('Received request from', clientAddress[0], 'listening at', clientAddress[1], ':', message, 'at time ', date_time)
