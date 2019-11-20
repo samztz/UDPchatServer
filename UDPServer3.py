@@ -14,6 +14,7 @@ t_lock=threading.Condition()
 clients=[]
 # would communicate with clients after every second
 timeout=False
+UPDATE_INTERVAL=2;
 
 
 def recv_handler():
