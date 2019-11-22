@@ -1,6 +1,6 @@
 
-def parceLoginInfo(string):
-    return string.split()
+def getusername(string):
+    return string.split(' ')[0]
 
 # simple authentication function
 def authentication(info):
