@@ -9,6 +9,7 @@ serverName = sys.argv[1]
 serverPort = int(sys.argv[2])
 username =''
 password =''
+receivedMessage=''
 
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 
@@ -32,10 +33,11 @@ def gatherLogininfo():
 def handleInput():
     global receiveMassage
     global serverAddress
-    while(1):
+    msg = input("Enter command: ")
+    send_message(msg)
 
 def recieving():
-    global receiveMassage
+    global receivedMessage
     global serverAddress
     #wait for the reply from the server
     receivedMessage, serverAddress = clientSocket.recvfrom(2048)
@@ -47,25 +49,26 @@ def recieving():
 
 msg = gatherLogininfo()
 send_message(msg)
+recieving()
 
 # main loop
 while(1):
     if (receivedMessage =='Login successfull'):
+        handleInput()
         break;
     elif (receivedMessage =='Login failed'):
         #  retype message
         print("Retry username and password..")
         msg = gatherLogininfo()
         send_message(msg)
-    else:
-        handleInput():
+       
 
-if (receivedMessage =='Subscription successfull'):
-    #Wait for 10 back to back messages from server
-    for i in range(10):
-        receivedMessage, serverAddress = clientSocket.recvfrom(2048)
-        print(receivedMessage.decode())
-#prepare to exit. Send Unsubscribe message to server
-else :
-    closeConnection()
-# Close the socket
+# if (receivedMessage =='Subscription successfull'):
+#     #Wait for 10 back to back messages from server
+#     for i in range(10):
+#         receivedMessage, serverAddress = clientSocket.recvfrom(2048)
+#         print(receivedMessage.decode())
+# #prepare to exit. Send Unsubscribe message to server
+# else :
+#     closeConnection()
+# # Close the socket
